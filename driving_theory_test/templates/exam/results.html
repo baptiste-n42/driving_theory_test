@@ -1,14 +1,14 @@
 {% extends "layout/base.html" %}
 {% set active_page = 'results' %}
 {% block header %}{% endblock %}
-{% block title %}Test Results {% endblock %}
+{% block title %}({{ total_correct }}/{{ total_quest }}) - Test Results {% endblock %}
 {% block extra_head %}
     <link href="{{ url_for('static', filename='results.css') }}" rel="stylesheet">
 {% endblock %}
 {% block main %}
     <div class="container py-4">
         <header class="pb-3 mb-4 border-bottom">
-            <a href="{{ url_for('home.home') }}" class="d-flex align-items-center text-dark text-decoration-none">
+            <a href="{{ url_for('home.home') }}" class="d-flex align-items-center text-white text-decoration-none">
                 <span class="fs-4">Test Results</span>
             </a>
         </header>
