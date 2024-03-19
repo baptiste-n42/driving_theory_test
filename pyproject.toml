@@ -1,0 +1,15 @@
+[project]
+name = "driving_theory_test"
+version = "2.0.0"
+description = "Thai Driving License Theory Test Simulation (Car & Motorbike)"
+dependencies = [
+    "flask ~= 2.2.2",
+    "gunicorn == 20.1.0",
+    "Werkzeug == 2.2.2",
+    "Jinja2 == 3.1.2",
+    "flask-jwt-extended == 4.6.0",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"

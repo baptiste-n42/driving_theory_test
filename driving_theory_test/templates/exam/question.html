@@ -19,7 +19,7 @@
     <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
         <a class="me-5 py-2 text-dark text-decoration-none">{{current_index+1}} / {{total}}</a>
         <a class="me-5 py-2 text-dark text-decoration-none">Time remaining: <span id="time">--:--</span></a>
-        <form action="{{ url_for('logout') }}" method="post" onsubmit="return confirmSubmit()">
+        <form action="{{ url_for('exam.logout') }}" method="post" onsubmit="return confirmSubmit()">
             <button type="submit" class="py-2 text-dark text-decoration-none" id="exit">Exit</button>
         </form>
     </nav>
@@ -57,7 +57,7 @@
                     <ul class="list-unstyled mt-3 mb-4">
                         <li><h5>{{ answer["text"] }}</h5></li>
                     </ul>
-                    <form class="answer_button" action="{{ url_for('exam') }}" method="post" novalidate>
+                    <form class="answer_button" action="{{ url_for('exam.exam') }}" method="post" novalidate>
                         <input type="hidden" name="Answer" value="{{ number }}"/>
                         <button type="submit" class="w-100 btn btn-lg btn-secondary">Select</button>
                     </form>

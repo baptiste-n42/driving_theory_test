@@ -10,7 +10,7 @@
     <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
         <a class="me-5 py-2 text-dark text-decoration-none">{{question}} / {{total}}</a>
         <a class="me-5 py-2 text-dark text-decoration-none">Time remaining: <span id="time">--:--</span></a>
-        <a class="py-2 text-dark text-decoration-none" id="exit" href="{{ url_for('home') }}">Exit</a>
+        <a class="py-2 text-dark text-decoration-none" id="exit" href="{{ url_for('home.home') }}">Exit</a>
     </nav>
 </div>
 {% endblock %}
@@ -36,7 +36,7 @@
                 non-native sounding English.</h5></li>
         </ul>
         <br>
-        <form action="{{ url_for('start_exam') }}" method="post">
+        <form action="{{ url_for('exam.start_exam') }}" method="post">
             <span class="center">
                 <button class="btn btn-secondary btn-lg" type="submit">Confirm</button>
             </span>

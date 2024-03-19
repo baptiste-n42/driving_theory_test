@@ -1,115 +1,20 @@
 import uuid
-import random
-import time
-import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 import math
-from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for
-from flask_jwt_extended import (
-    jwt_required,
-    JWTManager,
-    create_access_token,
-    set_access_cookies,
-    get_jwt,
-    unset_jwt_cookies,
+from flask import (
+    Blueprint, redirect, render_template, request, url_for, jsonify, make_response
 )
+from flask_jwt_extended import jwt_required, get_jwt, unset_jwt_cookies, set_access_cookies, create_access_token
 
-# --- GLOBAL VARIABLES ---
-MINI_NUMBER_OF_QUESTIONS = 10
-FULL_NUMBER_OF_QUESTIONS = 50
-SECONDS_PER_QUESTION = 60
-YEAR = time.localtime().tm_year
+from driving_theory_test import format_duration, update_user_token
+from driving_theory_test.db import get_question_id, create_question_bank
 
-# initiates app
-app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
-app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-app.config["JWT_COOKIE_CSRF_PROTECT"] = False
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
-jwt = JWTManager(app)
+bp = Blueprint('exam', __name__, url_prefix='/exam')
 
 
-# this function given a question ID returns information for that question from the SQL database
-def get_question_id(q_id):
-    db = sqlite3.connect("question_bank.db")
-    cursor = db.cursor()
-
-    rows = cursor.execute(
-        "SELECT * FROM question_bank WHERE q_id = ?",
-        (q_id,),
-    ).fetchall()
-    return rows[0]
-
-
-def get_all_questions_id():
-    db = sqlite3.connect("question_bank.db")
-    cursor = db.cursor()
-
-    rows = cursor.execute(
-        "SELECT q_id FROM question_bank",
-    ).fetchall()
-    return rows
-
-
-def format_duration(value: float):
-    return datetime.fromtimestamp(value).strftime("%Mm %Ssec")
-
-
-def update_user_token(
-        resp,
-        claims: dict,
-        exam_type=None,
-        exam_mode=None,
-        number_of_questions=None,
-        end_exam=None,
-        answers=None,
-        current_index=None,
-        score=None,
-        time_elapsed=None,
-        start_time=None,
-        time_remaining=None,
-):
-    exam_data = {
-        "exam_type": exam_type or claims.get("exam_type"),
-        "exam_mode": exam_mode or claims.get("exam_mode"),
-        "number_of_questions": number_of_questions or claims.get("number_of_questions"),
-        "end_exam": end_exam or claims.get("end_exam"),
-        "answers": answers or claims.get("answers"),
-        "current_index": current_index or claims.get("current_index", 0),
-        "score": score or claims.get("score"),
-        "time_elapsed": time_elapsed or claims.get("time_elapsed"),
-        "start_time": start_time or claims.get("start_time"),
-        "time_remaining": time_remaining or claims.get("time_remaining"),
-    }
-    set_access_cookies(resp, create_access_token(claims.get("sub"), additional_claims=exam_data))
-
-
-def create_question_bank(nb_q=50):
-    # creates a list of distinct random ints from 1-150
-    all_questions = get_all_questions_id()
-    questions = []
-    for _ in range(nb_q):
-        selected_q = random.choices(all_questions)
-        questions.append(selected_q[0][0])
-        all_questions.pop(all_questions.index(selected_q[0]))
-
-    return questions
-
-
-@app.route("/")
-def home():
-    return render_template(
-        "cover.html",
-        year=YEAR,
-        full_questions=FULL_NUMBER_OF_QUESTIONS,
-        full_time=(int((FULL_NUMBER_OF_QUESTIONS * SECONDS_PER_QUESTION) / 60)),
-        mini_questions=MINI_NUMBER_OF_QUESTIONS,
-        mini_time=(int((MINI_NUMBER_OF_QUESTIONS * SECONDS_PER_QUESTION) / 60)),
-    )
-
-
-@app.route("/exam/is_correct", methods=["POST"])
+@bp.route("/is_correct", methods=["POST"])
+@jwt_required()
 def is_correct():
     claims = get_jwt()
     answers: list = claims.get("answers")
@@ -118,7 +23,7 @@ def is_correct():
     return jsonify({"ans_id": question[11]})
 
 
-@app.route("/exam/results")
+@bp.route("/results")
 @jwt_required()
 def results():
     claims = get_jwt()
@@ -173,8 +78,7 @@ def results():
 
     resp = make_response(
         render_template(
-            "results.html",
-            year=YEAR,
+            "exam/results.html",
             total_quest=number_of_questions,
             total_correct=score,
             pass_fail=pass_fail,
@@ -199,12 +103,12 @@ def results():
 
 
 # standard question page template
-@app.route("/exam/", methods=["GET", "POST"])
+@bp.route("/", methods=["GET", "POST"])
 @jwt_required()
 def exam():
     claims = get_jwt()
     if claims.get("score", False):
-        return redirect(url_for("results"))
+        return redirect(url_for("exam.results"))
     current_index = claims.get("current_index")
     answers: list = claims.get("answers")
     exam_mode: bool = claims.get("exam_mode")
@@ -214,10 +118,10 @@ def exam():
 
     # check for time up. If so, send user to results page
     if datetime.now().timestamp() > claims.get("end_exam"):
-        return make_response(redirect(url_for("results")))
+        return make_response(redirect(url_for("exam.results")))
     if current_index >= len(answers):
         # End exam
-        return redirect(url_for("results"))
+        return redirect(url_for("exam.results"))
     # update question bank with info from previous question
     if request.method == "POST":
         data = request.form
@@ -225,7 +129,7 @@ def exam():
         if data["Answer"] != "0":
             answers[current_index][1] = data["Answer"]
         current_index += 1
-        resp = make_response(redirect(url_for("exam")))
+        resp = make_response(redirect(url_for("exam.exam")))
     else:
         question = get_question_id(answers[current_index][0])
         question_formatted = {
@@ -254,8 +158,7 @@ def exam():
 
         resp = make_response(
             render_template(
-                "question.html",
-                year=YEAR,
+                "exam/question.html",
                 total=number_of_questions,
                 question=question_formatted,
                 current_index=current_index,
@@ -271,43 +174,43 @@ def exam():
 
 
 # user navigates backwards using "previous button", revised question page template
-@app.route("/exam/p", methods=["GET", "POST"])
+@bp.route("/p", methods=["GET", "POST"])
 @jwt_required()
 def previous_exam():
     claims = get_jwt()
     current_index = claims.get("current_index")
     if current_index > 0:
         current_index -= 1
-    resp = make_response(redirect(url_for("exam")))
+    resp = make_response(redirect(url_for("exam.exam")))
     update_user_token(resp, claims, current_index=current_index)
     return resp
 
 
-@app.route("/exam/start_exam", methods=["POST"])
+@bp.route("/start_exam", methods=["POST"])
 @jwt_required()
 def start_exam():
     claims = get_jwt()
-    resp = make_response(redirect(url_for("exam")))
+    resp = make_response(redirect(url_for("exam.exam")))
     update_user_token(
         resp,
         claims,
         current_index=0,
         start_time=datetime.now().timestamp(),
-        end_exam=datetime.now().timestamp() + int(claims.get("number_of_questions")) * SECONDS_PER_QUESTION,
+        end_exam=datetime.now().timestamp() + int(claims.get("number_of_questions")) * 60,
     )
     return resp
 
 
-@app.route("/logout", methods=["POST"])
+@bp.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
-    resp = make_response(redirect(url_for("home")))
+    resp = make_response(redirect(url_for("home.home")))
     unset_jwt_cookies(resp)
     return resp
 
 
 # Pre-exam page with instructions for user
-@app.route("/pre-exam/", methods=["GET", "POST"])
+@bp.route("/pre-exam/", methods=["GET", "POST"])
 def pre_exam():
     exam_type = ""
     data = request.form
@@ -315,14 +218,14 @@ def pre_exam():
     if request.method == "POST":
         exam_type = data["Length"]
     if exam_type == "Full Exam":
-        number_of_questions = FULL_NUMBER_OF_QUESTIONS
+        number_of_questions = 50
     else:
-        number_of_questions = MINI_NUMBER_OF_QUESTIONS
+        number_of_questions = 10
 
     create_question_bank()
 
     resp = make_response(
-        render_template("pre-exam.html", year=YEAR, minutes=number_of_questions, questions=number_of_questions)
+        render_template("exam/pre-exam.html", minutes=number_of_questions, questions=number_of_questions)
     )
 
     exam_data = {
@@ -341,13 +244,3 @@ def pre_exam():
         )
     set_access_cookies(resp, create_access_token(uuid.uuid4().hex[:10].upper(), additional_claims=exam_data))
     return resp
-
-
-# About page
-@app.route("/about/")
-def about():
-    return render_template("about.html", year=YEAR)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
