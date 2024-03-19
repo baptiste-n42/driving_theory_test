@@ -12,16 +12,18 @@
            name="Length" value="Mini Exam"/>
     <input type="submit" class="btn btn-lg btn-secondary fw-bold d-inline border-white bg-white mt-4 m-4"
            name="Length" value="Full Exam"/>
+    <br>
     <!-- TODO : Allow to display correct answer as soon as the user validate it (better for memorization) -->
-    <label class="toggle-btn d-none">
-        <input type="checkbox" id="exam_mode" name="exam_mode" value="off" onclick="toggleExamMode()">
+    <label for="training_mode" class="px-2">Exam Mode</label>
+    <label class="toggle-btn">
+        <input type="checkbox" id="training_mode" name="training_mode" value="off" onclick="toggleTrainingMode()">
         <span class="slider round"></span>
     </label>
-    <label for="exam_mode" class="ms-2 d-none">Exam Mode</label>
+    <label for="training_mode" class="px-2">Training Mode</label>
 </form>
 <script>
-    function toggleExamMode() {
-      const toggleInput = document.getElementById('exam_mode');
+    function toggleTrainingMode() {
+      const toggleInput = document.getElementById('training_mode');
       if (toggleInput.value === 'off') {
         toggleInput.value = 'on';
       } else {
@@ -29,5 +31,4 @@
       }
     }
 </script>
-
 {% endblock %}
