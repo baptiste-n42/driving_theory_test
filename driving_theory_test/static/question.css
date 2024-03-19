@@ -73,3 +73,84 @@ vertical-align: bottom;
 #exit {
 cursor:pointer;
 }
+
+.selected-item {
+    background-color: #3498db; /* Blue background color */
+    color: #fff; /* White text color */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+}
+.correct-item {
+    background-color: #28a745; /* green background color */
+    color: #fff; /* White text color */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+}
+.wrong-item {
+    background-color: #dc3545; /* red background color */
+    color: #fff; /* White text color */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+}
+
+.selected-item:hover {
+    background-color: #2980b9; /* Darker blue background color on hover */
+}
+.correct-item:hover {
+    background-color: #207e35; /* Darker green background color on hover */
+}
+
+.wrong-item:hover {
+    background-color: #ff0000; /* Darker green background color on hover */
+}
+
+.selected-item > .card-body button {
+    background-color: #555; /* Grey button background color */
+    color: #fff; /* White button text color */
+    border: none; /* No border */
+    border-radius: 3px; /* Rounded corners */
+    padding: 8px 16px; /* Padding for the button */
+    margin: 5px; /* Margin to separate button from surrounding content */
+    cursor: pointer; /* Cursor style */
+}
+
+.selected-item > .card-body button:hover {
+    background-color: #333; /* Darker grey button background color on hover */
+}
+.validate-button {
+    background-color: #28a745; /* Green for validation */
+    color: #fff; /* White text color */
+}
+
+.next-button {
+    background-color: #007bff; /* Blue for next */
+    color: #fff; /* White text color */
+}
+
+.previous-button {
+    background-color: #beb6b6; /* Grey for previous */
+    color: #fff; /* White text color */
+}
+
+.validate-button:hover,
+.next-button:hover,
+.previous-button:hover {
+    filter: brightness(90%); /* Slight brightness reduction on hover */
+}
+
+.question_header {
+    height: 40vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.answer_card {
+    height: 30vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

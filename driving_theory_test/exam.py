@@ -11,17 +11,18 @@ from driving_theory_test.db import get_question_id, create_question_bank
 bp = Blueprint("exam", __name__, url_prefix="/exam")
 
 
-@bp.route("/is_correct", methods=["POST"])
+@bp.route("/get_answer", methods=["POST"])
 @jwt_required()
-def is_correct():
+def get_answer():
     claims = get_jwt()
-    answers: list = claims.get("answers")
-    question = get_question_id(answers[claims.get("current_index")][0])
+    if claims.get("training_mode"):
+        answers: list = claims.get("answers")
+        question = get_question_id(answers[claims.get("current_index")][0])
+        return jsonify({"ans_id": question[11]})
+    return make_response(jsonify({"error": "Exam mode... Not cheating!"}), 400)
 
-    return jsonify({"ans_id": question[11]})
 
-
-@bp.route("/results")
+@bp.route("/results", methods=["GET"])
 @jwt_required()
 def results():
     claims = get_jwt()
@@ -109,7 +110,7 @@ def exam():
         return redirect(url_for("exam.results"))
     current_index = claims.get("current_index")
     answers: list = claims.get("answers")
-    exam_mode: bool = claims.get("exam_mode")
+    training_mode: bool = claims.get("training_mode")
     number_of_questions: int = int(claims.get("number_of_questions"))
 
     seconds_left = float(claims.get("end_exam")) - datetime.now().timestamp()
@@ -140,6 +141,7 @@ def exam():
                 "3": {"text": question[7], "pic": question[8]},
                 "4": {"text": question[9], "pic": question[10]},
             },
+            "user_ans": answers[current_index][1] if len(answers[current_index]) else 0
         }
 
         resp = make_response(
@@ -148,8 +150,8 @@ def exam():
                 total=number_of_questions,
                 question=question_formatted,
                 current_index=current_index,
-                exam_mode=exam_mode,
                 seconds=seconds_left,
+                training_mode=training_mode,
                 progress=int((current_index / number_of_questions) * 100),
             )
         )
@@ -160,7 +162,7 @@ def exam():
 
 
 # user navigates backwards using "previous button", revised question page template
-@bp.route("/p", methods=["GET", "POST"])
+@bp.route("/p", methods=["POST"])
 @jwt_required()
 def previous_exam():
     claims = get_jwt()
@@ -196,28 +198,17 @@ def logout():
 
 
 # Pre-exam page with instructions for user
-@bp.route("/pre-exam/", methods=["GET", "POST"])
+@bp.route("/pre-exam", methods=["POST"])
 def pre_exam():
-    exam_type = ""
     data = request.form
-    if exam_type == "Full Exam":
-        number_of_questions = 50
-    else:
-        number_of_questions = 10
-
-    if request.method == "POST":
-        exam_type = data["Length"]
-        resp = make_response(redirect(url_for("exam.pre_exam")))
-    else:
-        resp = make_response(
-            render_template("exam/pre-exam.html", minutes=number_of_questions, questions=number_of_questions)
-        )
-
-    create_question_bank()
-
+    if "exam_type" not in data.keys():
+        return redirect(url_for('home.home'))
+    exam_type = data.get("exam_type")
+    number_of_questions = 50 if exam_type == "Full Exam" else 10
+    resp = make_response(redirect(url_for("exam.pre_exam")))
     exam_data = {
         "exam_type": exam_type,
-        "exam_mode": True if data.get("exam_mode", False) else False,
+        "training_mode": True if data.get("training_mode", False) else False,
         "number_of_questions": str(number_of_questions),
         "answers": [],
     }
@@ -231,3 +222,15 @@ def pre_exam():
         )
     set_access_cookies(resp, create_access_token(uuid.uuid4().hex[:10].upper(), additional_claims=exam_data))
     return resp
+
+
+@bp.route("/pre-exam", methods=["GET"])
+@jwt_required()
+def get_pre_exam():
+    claims = get_jwt()
+    if "number_of_questions" not in claims:
+        return redirect(url_for('home.home'))
+    return make_response(
+        render_template("exam/pre-exam.html",
+                        number_of_questions=claims.get("number_of_questions"))
+    )

@@ -40,55 +40,60 @@
             </div>
         </div>
 
-        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-            <h1 class="display-7 fw-normal">{{ question["question_text"] }}</h1>
+        <div class="question_header">
+            <h2 style="margin: 0;">{{ question["question_text"] }}</h2>
             {% if question["question_pic"] %}
                 <img class="bg-light border rounded-3 border-muted border-1 shadow-sm"
                      src="/static/images/{{ question['question_pic'] }}" alt="question picture" width="250">
             {% endif %}
         </div>
-        <div class="row row-cols-1 row-cols-md-2 mb-2 text-center">
 
+
+        <div class="button-container d-flex justify-content-between align-items-center">
+            <form action="{{ url_for('exam.previous_exam') }}" method="post" novalidate>
+                <button class="btn previous-button" id="previous" {{ 'disabled' if current_index == 0 else '' }}>
+                    Previous
+                </button>
+            </form>
+
+            <form action="{{ url_for('exam.exam') }}" method="post"
+                    {{ 'onsubmit=checkBeforeSubmit()' if training_mode else '' }} novalidate>
+                <input type="hidden" name="Answer" value="0" id="user_ans"/>
+                <button class="btn next-button" id="next">{{ 'Check answer' if training_mode else 'Next'}} </button>
+            </form>
+        </div>
+
+
+        <div class="row row-cols-1 row-cols-md-2 mb-2 text-center">
             {% for number, answer in question["answers"].items() %}
                 <div class="col gy-3">
-                    <div class="card mb-4 rounded-3 shadow-sm h-100">
+                    <div class="card mb-4 rounded-3 shadow-sm answer_card" id="ans_{{ number }}">
                         <div class="card-header py-3">
                             <h4 class="my-0 fw-normal">Answer {{ number }}</h4>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body d-flex flex-column">
                             {% if answer["pic"] %}
-                                <img class="bg-light border rounded-3" src="/static/images/{{ answer['pic'] }}"
+                                <img class="bg-light border rounded-3 mb-3" src="/static/images/{{ answer['pic'] }}"
                                      alt="question picture" width="250">
                             {% endif %}
-                            <ul class="list-unstyled mt-3 mb-4">
-                                <li><h5>{{ answer["text"] }}</h5></li>
-                            </ul>
-                            <form class="answer_button" action="{{ url_for('exam.exam') }}" method="post" novalidate>
-                                <input type="hidden" name="Answer" value="{{ number }}"/>
-                                <button type="submit" class="w-100 btn btn-lg btn-secondary">Select</button>
-                            </form>
+                            <div>
+                                <ul class="list-unstyled mt-3 mb-4">
+                                    <li><h5>{{ answer["text"] }}</h5></li>
+                                </ul>
+                            </div>
+                            <div class="mt-auto">
+                                <button type="submit" onclick="setAnswer({{ number }})"
+                                        class="w-100 btn btn-lg btn-secondary">Select
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
-            <!--    Previous/Next and Finish navigation   -->
-            {% if current_index %}
-                <div class="col gy-3">
-                    <form action="{{ url_for('exam.previous_exam') }}" method="post" novalidate>
-                        <input class="btn btn-outline-secondary" type="submit" name="Choice" value="Previous Question"/>
-                    </form>
-                </div>
-            {% endif %}
-
-            {% if (current_index+1) != total %}
-                <div class="col gy-3">
-                    <form action="{{ url_for('exam.exam') }}" method="post" novalidate>
-                        <input type="hidden" name="Answer" value="0"/>
-                        <input class="btn btn-outline-secondary" type="submit" name="Choice" value="Next Question"/>
-                    </form>
-                </div>
+            <!-- Set the currently selected answer -->
+            {% if question["user_ans"] %}
+                <script>setAnswer({{ question["user_ans"] }})</script>
             {% endif %}
         </div>
-
     </div>
 {% endblock %}

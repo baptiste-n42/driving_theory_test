@@ -9,9 +9,9 @@
 
     <form class="answer_button" action="{{ url_for('exam.pre_exam') }}" method="post" novalidate>
         <input type="submit" class="btn btn-lg btn-secondary fw-bold d-inline border-white bg-white mt-4 m-4"
-               name="Length" value="Mini Exam"/>
+               name="exam_type" value="Mini Exam"/>
         <input type="submit" class="btn btn-lg btn-secondary fw-bold d-inline border-white bg-white mt-4 m-4"
-               name="Length" value="Full Exam"/>
+               name="exam_type" value="Full Exam"/>
         <br>
         <!-- TODO : Allow to display correct answer as soon as the user validate it (better for memorization) -->
         <label for="training_mode" class="px-2">Exam Mode</label>
