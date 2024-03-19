@@ -8,18 +8,18 @@ def format_duration(value: float):
 
 
 def update_user_token(
-        resp,
-        claims: dict,
-        exam_type=None,
-        exam_mode=None,
-        number_of_questions=None,
-        end_exam=None,
-        answers=None,
-        current_index=None,
-        score=None,
-        time_elapsed=None,
-        start_time=None,
-        time_remaining=None,
+    resp,
+    claims: dict,
+    exam_type=None,
+    exam_mode=None,
+    number_of_questions=None,
+    end_exam=None,
+    answers=None,
+    current_index=None,
+    score=None,
+    time_elapsed=None,
+    start_time=None,
+    time_remaining=None,
 ):
     exam_data = {
         "exam_type": exam_type or claims.get("exam_type"),

@@ -2,15 +2,13 @@ import uuid
 from datetime import datetime
 
 import math
-from flask import (
-    Blueprint, redirect, render_template, request, url_for, jsonify, make_response
-)
+from flask import Blueprint, redirect, render_template, request, url_for, jsonify, make_response
 from flask_jwt_extended import jwt_required, get_jwt, unset_jwt_cookies, set_access_cookies, create_access_token
 
 from driving_theory_test import format_duration, update_user_token
 from driving_theory_test.db import get_question_id, create_question_bank
 
-bp = Blueprint('exam', __name__, url_prefix='/exam')
+bp = Blueprint("exam", __name__, url_prefix="/exam")
 
 
 @bp.route("/is_correct", methods=["POST"])
@@ -137,23 +135,11 @@ def exam():
             "question_text": question[1],
             "question_pic": question[2],
             "answers": {
-                "1": {
-                    "text": question[3],
-                    "pic": question[4]
-                },
-                "2": {
-                    "text": question[5],
-                    "pic": question[6]
-                },
-                "3": {
-                    "text": question[7],
-                    "pic": question[8]
-                },
-                "4": {
-                    "text": question[9],
-                    "pic": question[10]
-                },
-            }
+                "1": {"text": question[3], "pic": question[4]},
+                "2": {"text": question[5], "pic": question[6]},
+                "3": {"text": question[7], "pic": question[8]},
+                "4": {"text": question[9], "pic": question[10]},
+            },
         }
 
         resp = make_response(
@@ -214,19 +200,20 @@ def logout():
 def pre_exam():
     exam_type = ""
     data = request.form
-
-    if request.method == "POST":
-        exam_type = data["Length"]
     if exam_type == "Full Exam":
         number_of_questions = 50
     else:
         number_of_questions = 10
 
-    create_question_bank()
+    if request.method == "POST":
+        exam_type = data["Length"]
+        resp = make_response(redirect(url_for("exam.pre_exam")))
+    else:
+        resp = make_response(
+            render_template("exam/pre-exam.html", minutes=number_of_questions, questions=number_of_questions)
+        )
 
-    resp = make_response(
-        render_template("exam/pre-exam.html", minutes=number_of_questions, questions=number_of_questions)
-    )
+    create_question_bank()
 
     exam_data = {
         "exam_type": exam_type,

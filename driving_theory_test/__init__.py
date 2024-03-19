@@ -7,15 +7,14 @@ from flask_jwt_extended import JWTManager
 from .utils import format_duration, update_user_token
 
 
-def application(test_config=None):
+def create_app(*args, **kwargs):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE='question_bank.db',
-        YEAR=datetime.now().strftime("%Y")
+        SECRET_KEY="dev", DATABASE=os.path.join(app.root_path, "question_bank.db"), YEAR=datetime.now().strftime("%Y")
     )
     from . import home, db, exam
+
     db.init_app(app)
     app.register_blueprint(home.bp)
     app.register_blueprint(exam.bp)

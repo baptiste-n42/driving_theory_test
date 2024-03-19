@@ -2,26 +2,13 @@
 {% set active_page = 'exam' %}
 {% block title %}Theory Test{% endblock %}
 {% block header %}
-<div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom bg-white">
-    <a class="d-flex align-items-center text-dark text-decoration-none">
+<div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+    <a class="d-flex align-items-center text-white text-decoration-none">
         <span class="fs-4">Theory Test Simulation</span>
     </a>
-
-    <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-        <a class="me-5 py-2 text-dark text-decoration-none">{{question}} / {{total}}</a>
-        <a class="me-5 py-2 text-dark text-decoration-none">Time remaining: <span id="time">--:--</span></a>
-        <a class="py-2 text-dark text-decoration-none" id="exit" href="{{ url_for('home.home') }}">Exit</a>
-    </nav>
 </div>
 {% endblock %}
 {% block main %}
-<div class="progress">
-    <div class="progress-bar bg-secondary progress-bar-striped" role="progressbar" aria-label="Basic example"
-         style="width: {{progress}}%" aria-valuenow={{question}} aria-valuemin="0" aria-valuemax={{total}}>
-        {{progress}}%
-    </div>
-</div>
-<br>
 <div class="p-5 mb-4 bg-dark bg-gradient text-white rounded-3">
     <div class="container-fluid py-5">
         <p class="display-5 fw-bold text-center">----- Read first -----</p>

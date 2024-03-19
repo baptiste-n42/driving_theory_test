@@ -1,10 +1,9 @@
 
 function confirmSubmit() {
-  const toggleInput = document.getElementById('toggleInput');
-  if (toggleInput.checked) {
-    return confirm('Are you sure you want to submit with the toggle button on?');
+  if (confirm("All progress will be lost. Are you sure?") == true) {
+        return true
   }
-  return true;
+  else { return false }
 }
 
 function setTime(timer) {

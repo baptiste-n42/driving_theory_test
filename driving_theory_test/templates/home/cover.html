@@ -12,11 +12,12 @@
            name="Length" value="Mini Exam"/>
     <input type="submit" class="btn btn-lg btn-secondary fw-bold d-inline border-white bg-white mt-4 m-4"
            name="Length" value="Full Exam"/>
-    <label class="toggle-btn">
+    <!-- TODO : Allow to display correct answer as soon as the user validate it (better for memorization) -->
+    <label class="toggle-btn d-none">
         <input type="checkbox" id="exam_mode" name="exam_mode" value="off" onclick="toggleExamMode()">
         <span class="slider round"></span>
     </label>
-    <label for="exam_mode" class="ms-2">Exam Mode</label>
+    <label for="exam_mode" class="ms-2 d-none">Exam Mode</label>
 </form>
 <script>
     function toggleExamMode() {

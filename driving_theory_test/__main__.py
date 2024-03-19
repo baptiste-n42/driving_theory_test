@@ -1,4 +1,4 @@
-from driving_theory_test import application
+from driving_theory_test import create_app
 
-if __name__ == '__main__':
-    application().run()
+if __name__ == "__main__":
+    create_app().run()

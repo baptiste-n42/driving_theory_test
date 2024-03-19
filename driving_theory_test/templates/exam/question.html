@@ -7,6 +7,11 @@
     window.onload = function () {
         display = document.querySelector('#time');
         startTimer({{seconds}}, display);
+        history.pushState(null, null, location.href);
+    };
+    window.onpopstate = function () {
+        alert('Please use the \'Exit\' button to exit the test');
+        history.go(1);
     };
 </script>
 {% endblock %}
@@ -43,7 +48,7 @@
     </div>
     <div class="row row-cols-1 row-cols-md-2 mb-2 text-center">
 
-    {% for number, answer in question["answers"].items() %}
+        {% for number, answer in question["answers"].items() %}
         <div class="col gy-3">
             <div class="card mb-4 rounded-3 shadow-sm h-100">
                 <div class="card-header py-3">
@@ -64,9 +69,25 @@
                 </div>
             </div>
         </div>
+        {% endfor %}
+        <!--    Previous/Next and Finish navigation   -->
+        {% if current_index %}
+        <div class="col gy-3">
+            <form action="{{ url_for('exam.previous_exam') }}" method="post" novalidate>
+                <input class="btn btn-outline-secondary" type="submit" name="Choice" value="Previous Question"/>
+            </form>
+        </div>
+        {% endif %}
 
-
-    {% endfor %}
+        {% if (current_index+1) != total %}
+        <div class="col gy-3">
+            <form action="{{ url_for('exam.exam') }}" method="post" novalidate>
+                <input type="hidden" name="Answer" value="0"/>
+                <input class="btn btn-outline-secondary" type="submit" name="Choice" value="Next Question"/>
+            </form>
+        </div>
+        {% endif %}
     </div>
+
 </div>
 {% endblock %}

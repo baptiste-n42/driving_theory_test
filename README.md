@@ -26,5 +26,5 @@ Start the App for development
 Start the App for deployment in prod
 ```bash
     pip install -U .
-    gunicorn driving_theory_test
+    gunicorn 'driving_theory_test:create_app()'
 ```
