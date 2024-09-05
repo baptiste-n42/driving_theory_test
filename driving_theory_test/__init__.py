@@ -33,6 +33,10 @@ def create_app(*args, **kwargs):
     def unauthorized_loader(e):
         return redirect("/")
 
+    @app.route("/healthcheck")
+    def healthcheck():
+        return make_response(jsonify({"status": "OK"}), 200)
+
     @app.errorhandler(Exception)
     def all_exception_handler(error):
         return make_response(jsonify({"error": f"Error : {error.args}"}), 400)
